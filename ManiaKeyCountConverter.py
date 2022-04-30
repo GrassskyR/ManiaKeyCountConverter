@@ -38,17 +38,16 @@ def OszConvert(Map_path):
         temposufile = os.path.join(tempdir,osufile)     
         try:
             if(temposufile.endswith(".osu")):
-                print(temposufile)
+                print(osufile)
                 OsuConvert(temposufile)     #删空
         except:
             print("Unexpected error:", sys.exc_info()[0])
     
-    oszfile = zipfile.ZipFile(Map_path,"a")
-    
+    oszfile = zipfile.ZipFile(Map_path,"w")
+
     for osufile in os.listdir(tempdir):
         temposufile = os.path.join(tempdir,osufile)
-        if(temposufile.endswith(".osu")):
-            oszfile.write(temposufile,"6k_" + osufile)  #将新的osu文件放回原osz文件中
+        oszfile.write(temposufile,osufile)     #创建新的osz文件
 
     oszfile.close()
     shutil.rmtree(tempdir)    #删除临时文件夹
@@ -61,7 +60,6 @@ for i in range (1,len(Map_list)) :
         if(FilePath.endswith(".osu")):
             OsuConvert(FilePath)
         elif(FilePath.endswith(".osz")):
-            print("osz?")
             OszConvert(FilePath)
             
     except:
