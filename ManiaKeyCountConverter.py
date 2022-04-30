@@ -1,54 +1,73 @@
+import shutil
 import os
 import re
 import sys
+import tempfile
+import zipfile
 
-def KeyConvert(osu_path):
+def OsuConvert(Map_path):
 
-        '''
-        去掉路径中的双引号 UwU我太菜了 只能这样
-        '''
-        if osu_path.startswith('"') and osu_path.endswith('"'):
-            osu_path = osu_path[1:-1]
+        if Map_path.startswith('"') and Map_path.endswith('"'):     #去除路径中的双引号（如果有）
+            Map_path = Map_path[1:-1]
 
-        '''
-        读入osu文件
-        '''
-
-        osu_files = open(osu_path,"r",encoding='UTF-8')
+        osu_files = open(Map_path,"r",encoding='UTF-8')     #读取osu文件
 
         osu_content = osu_files.read()
 
-        '''
-        删空 处理谱面
-        '''
-
-        if re.search(r'[^\n]*256[^\n]*\n?',osu_content,re.M)  or osu_content.find("CircleSize:7") != -1:
+        if osu_content.find("Mode: 3") and osu_content.find("CircleSize:7") != -1:  
             osu_content = re.sub(r'[^\n]*256[^\n]*\n?','',osu_content)
-            osu_content = re.sub("CircleSize:7","CircleSize:6",osu_content)
+            osu_content = re.sub("CircleSize:7","CircleSize:6",osu_content)     #正则删空
             osu_files.close()
-            osu_files = open(osu_path,"w",encoding='UTF-8')
+            osu_files = open(Map_path,"w",encoding='UTF-8')
             osu_files.write(osu_content)
             print("转换完成")
         else :
-            print("你打开的好像不是7K谱捏")
+            print("这个谱面不是7k谱面！")
 
         osu_files.close()
 
-'''
-获取拖入程序的osu文件绝对路径
-'''
+def OszConvert(Map_path):
+    print(Map_path)
+    tempdir = os.path.join(os.getcwd(),"tmp")   #生成临时文件夹存放解压的osu
+    oszfile = zipfile.ZipFile(Map_path,"r")
+    
+    oszfile.extractall(tempdir)     #解压所有文件到临时文件夹
+    oszfile.close()
+    
+    for osufile in os.listdir(tempdir):     #遍历临时文件夹获取osu文件绝对路径
+        temposufile = os.path.join(tempdir,osufile)     
+        try:
+            if(temposufile.endswith(".osu")):
+                print(temposufile)
+                OsuConvert(temposufile)     #删空
+        except:
+            print("Unexpected error:", sys.exc_info()[0])
+    
+    oszfile = zipfile.ZipFile(Map_path,"a")
+    
+    for osufile in os.listdir(tempdir):
+        temposufile = os.path.join(tempdir,osufile)
+        if(temposufile.endswith(".osu")):
+            oszfile.write(temposufile,"6k_" + osufile)  #将新的osu文件放回原osz文件中
 
-osu_list = list(sys.argv)
+    oszfile.close()
+    shutil.rmtree(tempdir)    #删除临时文件夹
 
-for i in range (1,len(osu_list)) :
+Map_list = list(sys.argv)   #获取拖入文件的绝对路径
+
+for i in range (1,len(Map_list)) :
+    FilePath = Map_list[i]
     try:
-        KeyConvert(osu_list[i])
-    except UnicodeDecodeError:
-        print("请不要直接打开osz文件! >_<")
+        if(FilePath.endswith(".osu")):
+            OsuConvert(FilePath)
+        elif(FilePath.endswith(".osz")):
+            print("osz?")
+            OszConvert(FilePath)
+            
     except:
         print("Unexpected error:", sys.exc_info()[0])
 
-if len(osu_list) == 1:
-    print("请将osu文件直接拖到程序上 不要直接点开!支持拖拽多个osu文件")
+if len(Map_list) == 1:
+    print("请将osu或osz文件直接拖到程序上 不要直接点开程序！支持拖拽多个文件一起转换！")
 
 os.system("pause")
