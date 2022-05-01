@@ -52,20 +52,22 @@ def OszConvert(Map_path):
     oszfile.close()
     shutil.rmtree(tempdir)    #删除临时文件夹
 
-Map_list = list(sys.argv)   #获取拖入文件的绝对路径
+if __name__ == "__main__":
 
-for i in range (1,len(Map_list)) :
-    FilePath = Map_list[i]
-    try:
-        if(FilePath.endswith(".osu")):
-            OsuConvert(FilePath)
-        elif(FilePath.endswith(".osz")):
-            OszConvert(FilePath)
-            
-    except:
-        print("Unexpected error:", sys.exc_info()[0])
+    Map_list = list(sys.argv)   #获取拖入文件的绝对路径
 
-if len(Map_list) == 1:
-    print("请将osu或osz文件直接拖到程序上 不要直接点开程序！支持拖拽多个文件一起转换！")
+    for i in range (1,len(Map_list)) :
+        FilePath = Map_list[i]
+        try:
+            if(FilePath.endswith(".osu")):
+                OsuConvert(FilePath)
+            elif(FilePath.endswith(".osz")):
+                OszConvert(FilePath)
+                
+        except:
+            print("Unexpected error:", sys.exc_info()[0])
 
-os.system("pause")
+    if len(Map_list) == 1:
+        print("请将osu或osz文件直接拖到程序上 不要直接点开程序！支持拖拽多个文件一起转换！")
+
+    os.system("pause")
