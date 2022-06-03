@@ -15,7 +15,7 @@ def OsuConvert(Map_path):
         osu_content = osu_files.read()
 
         if osu_content.find("Mode: 3") and osu_content.find("CircleSize:7") != -1:  
-            osu_content = re.sub(r'[^\n]*256[^\n]*\n?','',osu_content)
+            osu_content = re.sub(r'[^\n]*^(22[2-9]|2[3-8][0-9]|29[0-6])[^\n]*\n?','',osu_content)   #这个正则花了我一个多小时
             osu_content = re.sub("CircleSize:7","CircleSize:6",osu_content)     #正则删空
             osu_files.close()
             osu_files = open(Map_path,"w",encoding='UTF-8')
