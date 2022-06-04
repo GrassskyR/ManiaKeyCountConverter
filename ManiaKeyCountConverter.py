@@ -7,6 +7,8 @@ import zipfile
 
 def OsuConvert(Map_path):
 
+        regex = r"[^\n]*^(22[2-9]|2[3-8][0-9]|29[0-5])[^\n]*\n?"
+
         if Map_path.startswith('"') and Map_path.endswith('"'):     #去除路径中的双引号（如果有）
             Map_path = Map_path[1:-1]
 
@@ -15,7 +17,7 @@ def OsuConvert(Map_path):
         osu_content = osu_files.read()
 
         if osu_content.find("Mode: 3") and osu_content.find("CircleSize:7") != -1:  
-            osu_content = re.sub(r'[^\n]*^(22[2-9]|2[3-8][0-9]|29[0-6])[^\n]*\n?','',osu_content)   #这个正则花了我一个多小时
+            osu_content = re.sub(regex,'',osu_content,0,re.M)   #这个正则花了我一个多小时
             osu_content = re.sub("CircleSize:7","CircleSize:6",osu_content)     #正则删空
             osu_files.close()
             osu_files = open(Map_path,"w",encoding='UTF-8')
